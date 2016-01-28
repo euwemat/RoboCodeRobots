@@ -21,18 +21,29 @@ public class FigureEight extends AdvancedRobot
 	public void run() {
 		
 		int count = -1;
-		double closest = 2000, curX = getX(), curY = getY(), slopeToDest, enemySlopeToDest; 
+		double closest = 2000, curX = getX(), curY = getY(), heading , slopeToDest, enemySlopeToDest; 
 		double[] temp = new double[4];
-		
-		
 		
 		//Find and go to the closest corner
 		temp = findClosestCorner();
 		
 		//Find location of sitting duck
 		turnRadarLeft(360);
-		adjustCorners();		
-
+		
+		//Turn toward the closest destination
+		turnTowardDestination(temp[0], temp[1]);	
+		heading = getHeading();
+				
+		//Adjust the corners if necessary 
+		adjustCorners();
+		
+		//Check if we're facing southish. This is important beause 
+		//if the duck is in the way it's slope will be a lot higher
+		//so we need to we need to check the inverse slope.		
+		if (heading > 160 && heading < 200){
+			slopeToDest = findSlopeToDest(curY, curX, temp[1], temp[0]);
+			enemySlopeToDest = findSlopeToDest(enemyY, enemyX, temp[1], temp[0]);	
+		}
 		//Find slopes of both bots for comparison 
 		slopeToDest = findSlopeToDest(curX, curY, temp[0], temp[1]);
 		enemySlopeToDest = findSlopeToDest(enemyX, enemyY, temp[0], temp[1]);
@@ -102,14 +113,14 @@ public class FigureEight extends AdvancedRobot
 				goToStraight(BRX, BRY);
 				count = 0;
 			}
-		}
+		} 
 	}
 
 	/**************************************************************************
 	 * Method used to adjust the location of the corners if the enemey is to close
 	 *************************************************************************/
 	public void adjustCorners(){
-		double temp = 0, toClose = 60;
+		double temp, toClose = 60;
 		temp = distanceFormula(BRX, BRY, enemyX, enemyY);
 		
 		//Check if a corner is to close to the enemy
@@ -304,7 +315,7 @@ public class FigureEight extends AdvancedRobot
 		heading = getHeading();
 		
 		//Check if we're facing southish. This is important beause 
-		//if the duck is in the way it's slope will be near infinity
+		//if the duck is in the way it's slope will be a lot higher
 		//so we need to we need to check the inverse slope.
 		if (heading > 160 && heading < 200){
 			slopeToDest = findSlopeToDest(curY, curX, Y, X);
